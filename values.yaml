@@ -44,6 +44,11 @@ rabbitmq:
   ##
   # password:
 
+  ## RabbitMQ application vhost
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#environment-variables
+  ##
+  # vhost:
+
   ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
   ##

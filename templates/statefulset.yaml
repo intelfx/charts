@@ -70,6 +70,9 @@ spec:
               echo "## secrets"
               echo "default_user = $RABBITMQ_USERNAME"
               echo "default_pass = $RABBITMQ_PASSWORD"
+              {{- if .Values.rabbitmq.vhost }}
+              echo "default_vhost = $RABBITMQ_VHOST"
+              {{- end }}
             } >> /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
             # Move logs to stdout
             ln -sF /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_IP}.log
@@ -164,6 +167,13 @@ spec:
               secretKeyRef:
                 name: {{ template "rabbitmq.fullname" . }}
                 key: rabbitmq-password
+          {{- if .Values.rabbitmq.vhost }}
+          - name: RABBITMQ_VHOST
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "rabbitmq.fullname" . }}
+                key: rabbitmq-vhost
+          {{- end }}
           {{- if .Values.rabbitmq.amqpPort }}
           - name: RABBITMQ_NODE_PORT
             value: "{{ .Values.rabbitmq.amqpPort }}"
