@@ -65,8 +65,12 @@ spec:
             cp  /opt/bitnami/rabbitmq/conf/* /opt/bitnami/rabbitmq/etc/rabbitmq
             # Apply resources limits
             ulimit -n "${RABBITMQ_ULIMIT_NOFILES}"
-            #replace the default password that is generated
-            sed -i "s/CHANGEME/$RABBITMQ_PASSWORD/g" /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
+            # insert configuration from secrets
+            {
+              echo "## secrets"
+              echo "default_user = $RABBITMQ_USERNAME"
+              echo "default_pass = $RABBITMQ_PASSWORD"
+            } >> /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
             # Move logs to stdout
             ln -sF /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_IP}.log
             ln -sF /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_IP}_upgrade.log
@@ -92,7 +96,7 @@ spec:
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:
           exec:
-            command: ["sh", "-c", "test \"$(curl -f --user {{ .Values.rabbitmq.username }}:$RABBITMQ_PASSWORD 127.0.0.1:{{ .Values.rabbitmq.managerPort }}/api/healthchecks/node)\" = '{\"status\":\"ok\"}'"]
+            command: ["sh", "-c", "test \"$(curl -f --user $RABBITMQ_USERNAME:$RABBITMQ_PASSWORD 127.0.0.1:{{ .Values.rabbitmq.managerPort }}/api/healthchecks/node)\" = '{\"status\":\"ok\"}'"]
           initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
           timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
@@ -102,7 +106,7 @@ spec:
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe:
           exec:
-            command: ["sh", "-c", "test \"$(curl -f --user {{ .Values.rabbitmq.username }}:$RABBITMQ_PASSWORD 127.0.0.1:{{ .Values.rabbitmq.managerPort }}/api/healthchecks/node)\" = '{\"status\":\"ok\"}'"]
+            command: ["sh", "-c", "test \"$(curl -f --user $RABBITMQ_USERNAME:$RABBITMQ_PASSWORD 127.0.0.1:{{ .Values.rabbitmq.managerPort }}/api/healthchecks/node)\" = '{\"status\":\"ok\"}'"]
           initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
@@ -150,6 +154,11 @@ spec:
               secretKeyRef:
                 name: {{ template "rabbitmq.fullname" . }}
                 key: rabbitmq-erlang-cookie
+          - name: RABBITMQ_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "rabbitmq.fullname" . }}
+                key: rabbitmq-username
           - name: RABBITMQ_PASSWORD
             valueFrom:
               secretKeyRef:
