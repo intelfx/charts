@@ -120,8 +120,6 @@ spec:
         {{- if .Values.image.debug}}
           - name: BASH_DEBUG
             value: "1"
-          - name: NAMI_DEBUG
-            value: "1"
         {{- end }}
           - name: MY_POD_IP
             valueFrom:
