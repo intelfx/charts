@@ -12,6 +12,9 @@ data:
 {{ .Values.rabbitmq.plugins | indent 4 }}
   rabbitmq.conf: |-
     ## generated configuration
+    {{- if .Values.rabbitmq.diskFreeLimit }}
+    disk_free_limit.absolute = {{ .Values.rabbitmq.diskFreeLimit }}
+    {{- end }}
     {{- if .Values.rabbitmq.managerPort }}
     management.listener.port = {{ .Values.rabbitmq.managerPort }}
     {{- end }}
