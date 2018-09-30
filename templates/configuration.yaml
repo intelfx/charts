@@ -11,5 +11,9 @@ data:
   enabled_plugins: |-
 {{ .Values.rabbitmq.plugins | indent 4 }}
   rabbitmq.conf: |-
+    ## generated configuration
+    {{- if .Values.rabbitmq.managerPort }}
+    management.listener.port = {{ .Values.rabbitmq.managerPort }}
+    {{- end }}
 {{ .Values.rabbitmq.configuration | indent 4 }}
 
