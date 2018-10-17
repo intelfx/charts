@@ -156,6 +156,10 @@ spec:
               secretKeyRef:
                 name: {{ template "rabbitmq.fullname" . }}
                 key: rabbitmq-password
+          {{- if .Values.rabbitmq.amqpPort }}
+          - name: RABBITMQ_NODE_PORT
+            value: "{{ .Values.rabbitmq.amqpPort }}"
+          {{- end }}
 {{- if .Values.metrics.enabled }}
       - name: metrics
         image: {{ template "metrics.image" . }}
