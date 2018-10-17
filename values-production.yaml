@@ -83,13 +83,13 @@ rabbitmq:
 
   ## Clustering settings
   clustering:
-    address_type: ip
     k8s_domain: cluster.local
 
   ## Configution file content
   configuration: |-
       ## Clustering
       cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+      cluster_formation.k8s.address_type = hostname
       cluster_formation.k8s.host = kubernetes
       cluster_formation.node_cleanup.interval = 10
       cluster_formation.node_cleanup.only_log_warning = false

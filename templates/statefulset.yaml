@@ -74,9 +74,9 @@ spec:
               echo "default_vhost = $RABBITMQ_VHOST"
               {{- end }}
             } >> /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
-            # Move logs to stdout
-            ln -sF /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_IP}.log
-            ln -sF /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_IP}_upgrade.log
+            # Redirect logs to stdout
+            ln -sf /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_NAME}.log
+            ln -sf /dev/stdout /opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit@${MY_POD_NAME}_upgrade.log
             exec rabbitmq-server
         {{- if .Values.resources }}
         resources:
@@ -135,17 +135,10 @@ spec:
                 fieldPath: metadata.namespace
           - name: K8S_SERVICE_NAME
             value: "{{ template "rabbitmq.fullname" . }}-headless"
-          - name: K8S_ADDRESS_TYPE
-            value: {{ .Values.rabbitmq.clustering.address_type }}
-          {{- if (eq "hostname" .Values.rabbitmq.clustering.address_type) }}
           - name: RABBITMQ_NODENAME
-            value: "rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.{{ .Values.rabbitmq.clustering.k8s_domain }}"
+            value: "rabbit@$(MY_POD_NAME)"
           - name: K8S_HOSTNAME_SUFFIX
-            value: ".$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.{{ .Values.rabbitmq.clustering.k8s_domain }}"
-          {{- else }}
-          - name: RABBITMQ_NODENAME
-            value: "rabbit@$(MY_POD_IP)"
-          {{- end }}
+            value: ""
           - name: RABBITMQ_ULIMIT_NOFILES
             value: {{ .Values.rabbitmq.ulimitNofiles | quote }}
           - name: RABBITMQ_USE_LONGNAME
